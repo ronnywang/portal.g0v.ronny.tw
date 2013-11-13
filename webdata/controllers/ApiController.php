@@ -7,7 +7,7 @@ class ApiController extends Pix_Controller
         return $this->jsonp(array(
             'error' => true,
             'message' => $message,
-        ));
+        ), strval($_GET['callback']));
     }
 
     public function searchgoodidcountryAction()
@@ -42,7 +42,7 @@ class ApiController extends Pix_Controller
             $values[] = $value;
         }
 
-        return $this->jsonp($values);
+        return $this->jsonp($values, strval($_GET['callback']));
     }
 
     public function searchgoodidtimeAction()
