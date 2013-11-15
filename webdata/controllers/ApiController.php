@@ -29,13 +29,13 @@ class ApiController extends Pix_Controller
         $values = array();
         foreach ($table->search(array('country_id' => intval($country_id), 'good_id' => intval($goodid)))->order('time ASC') as $row) {
             $value = array();
-            $value['Time'] = $row->time;
-            $value['Weight'] = $row->weight_value;
+            $value['Time'] = intval($row->time);
+            $value['Weight'] = intval($row->weight_value);
             $value['WeightUnit'] = UnitGroup::getName($row->weight_unit_id);
-            $value['Value'] = $row->value;
+            $value['Value'] = intval($row->value);
 
             if ($code == 11) {
-                $value['Number'] = $row->num_value;;
+                $value['Number'] = intval($row->num_value);
                 $value['NumberUnit'] = UnitGroup::getName($row->num_unit_id);
             }
 
@@ -61,12 +61,12 @@ class ApiController extends Pix_Controller
         foreach ($table->search(array('good_id' => intval($goodid), 'time' => intval($time))) as $row) {
             $value = array();
             $value['Country'] = CountryGroup::getName($row->country_id);
-            $value['Weight'] = $row->weight_value;
+            $value['Weight'] = intval($row->weight_value);
             $value['WeightUnit'] = UnitGroup::getName($row->weight_unit_id);
-            $value['Value'] = $row->value;
+            $value['Value'] = intval($row->value);
 
             if ($code == 11) {
-                $value['Number'] = $row->num_value;;
+                $value['Number'] = intval($row->num_value);
                 $value['NumberUnit'] = UnitGroup::getName($row->num_unit_id);
             }
 
