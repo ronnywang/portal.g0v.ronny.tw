@@ -24,7 +24,32 @@ $columns_11 = array(
 
 foreach (array(2,4,6,8,11) as $code) {
     $insert_datas = array();
-    foreach (glob($_SERVER['argv'][1] . '/*-' . $code . 'code.csv') as $file) {
+    $files = glob($_SERVER['argv'][1] . '/*-' . $code . 'code.csv');
+    usort($files, function($a, $b){
+        if (!preg_match('#/([0-9]*)-([0-9]*)-[0-9]*code.csv$#', $a, $a_matches)) {
+            throw new Exception('檔名不對');
+        }
+        if (!preg_match('#/([0-9]*)-([0-9]*)-[0-9]*code.csv$#', $b, $b_matches)) {
+            throw new Exception('檔名不對');
+        }
+        if ($a_matches[1] > $b_matches[1]) {
+            return 1;
+        } elseif ($a_matches[1] < $b_matches[1]) {
+            return -1;
+        }
+        if ($a_matches[2] > $b_matches[2]) {
+            return 1;
+        } elseif ($a_matches[2] < $b_matches[2]) {
+            return -1;
+        }
+        if ($a_matches[3] > $b_matches[3]) {
+            return 1;
+        } elseif ($a_matches[3] < $b_matches[3]) {
+            return -1;
+        }
+        return 0;
+    });
+    foreach ($files as $file) {
         if (!preg_match('#/([0-9]*)-([0-9]*)-[0-9]*code.csv$#', $file, $matches)) {
             throw new Exception('檔名不對');
         }
