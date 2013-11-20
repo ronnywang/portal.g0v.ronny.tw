@@ -33,7 +33,7 @@ foreach (array(2,4,6,8,11) as $code) {
 
         while ($rows = fgetcsv($fp)) {
             $insert_data = array();
-            $insert_data[] = $rows[0]; // 貨品代號
+            $insert_data[] = substr($rows[0], 0, 10); // 貨品代號, 最多取十碼
             $insert_data[] = $matches[1] * 100 + $matches[2];
             $insert_data[] = CountryGroup::getCode($rows[1]); // 國家代號
             if ($code == 11) {
