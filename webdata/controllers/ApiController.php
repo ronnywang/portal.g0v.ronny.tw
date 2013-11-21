@@ -10,6 +10,20 @@ class ApiController extends Pix_Controller
         ), strval($_GET['callback']));
     }
 
+    public function goodidAction()
+    {
+        list(,/*api*/,/*goodid*/, $goodid) = explode('/', $this->getURI());
+        if (!is_numeric($goodid)) {
+            return $this->error("not number");
+        }
+
+        return $this->json(array(
+            'erorr' => 0,
+            'good_id' => intval($goodid),
+            'data' => array_values(GoodId::search(array('parent_id' => intval($goodid)))->toArray(array('id', 'name', 'ename'))),
+        ));
+    }
+
     public function searchgoodidcountryAction()
     {
         list(,,,$goodid, $country) = explode('/', $this->getURI());
