@@ -1,5 +1,4 @@
 <?= $this->partial('/common/header.phtml', $this) ?>
-
 <ol class="breadcrumb">
     <li><a href="/">首頁</a>
     <?php foreach (array_reverse($this->goodid->getParents()) as $parent) { ?>
@@ -8,11 +7,169 @@
     <?php } ?>
     </li>
 </ol>
+<h1><?= $this->escape($this->goodid->name) ?></h1>
 
-<h2>分類</h2>
+<h2>子分類</h2>
 JSON: <?= $this->partial('/common/link.phtml', array('link' => 'api/goodid/' . $this->goodid->id())) ?>
 <ul>
     <?php foreach (GoodId::search(arraY('parent_id' => $this->goodid->id)) as $good_id) { ?>
     <li><a href="/index/goodid/<?= $good_id->id ?>"><?= $good_id->id() ?>. <?= $this->escape($good_id->name) ?></a>
     <?php } ?>
 </ul>
+
+修改時間 <select id="select-year" class="time-select">
+    <?php foreach (range(92, date('Y') - 1911) as $year) { ?>
+    <option value="<?= $year ?>"<?= floor($this->time / 100) == $year ? ' selected="selected"' : '' ?>><?= $year ?></option>
+    <?php } ?>
+</select>年
+<select id="select-month" class="time-select">
+    <?php foreach (range(1, 12) as $month) { ?>
+    <option value="<?= $month ?>"<?= ($this->time % 100) == $month ? ' selected="selected"' : '' ?>><?= $month ?></option>
+    <?php } ?>
+</select>年
+
+<h2><?= $this->time ?>進口資料</h2>
+JSON: <?= $this->partial('/common/link.phtml', array('id' => 'time-in-api', 'link' => 'api/searchgoodidtime/in/' . $this->goodid->id . '/' . $this->time)) ?><br>
+時間: 
+<table id="time-in-table" class="table">
+    <thead>
+        <tr>
+            <td>國家</td>
+            <td>重量</td>
+            <td>重量單位</td>
+            <td>數量</td>
+            <td>數量單位</td>
+            <td>價值(千元)</td>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+<h2><?= $this->time ?>出口資料</h2>
+JSON: <?= $this->partial('/common/link.phtml', array('id' => 'time-out-api', 'link' => 'api/searchgoodidtime/out/' . $this->goodid->id . '/' . $this->time)) ?><br>
+時間: 
+<table id="time-out-table" class="table">
+    <thead>
+        <tr>
+            <td>國家</td>
+            <td>重量</td>
+            <td>重量單位</td>
+            <td>數量</td>
+            <td>數量單位</td>
+            <td>價值(千元)</td>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+<h2><?= $this->escape($this->country) ?>進口資料</h2>
+JSON: <?= $this->partial('/common/link.phtml', array('id' => 'country-in-api', 'link' => 'api/searchgoodidcountry/in/' . $this->goodid->id . '/' . $this->country)) ?>
+<table id="country-in-table" class="table">
+    <thead>
+        <tr>
+            <td>時間</td>
+            <td>重量</td>
+            <td>重量單位</td>
+            <td>數量</td>
+            <td>數量單位</td>
+            <td>價值(千元)</td>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+<h2><?= $this->escape($this->country) ?>出口資料</h2>
+JSON: <?= $this->partial('/common/link.phtml', array('id' => 'country-out-api', 'link' => 'api/searchgoodidcountry/out/' . $this->goodid->id . '/' . $this->country)) ?>
+<table id="country-out-table" class="table">
+    <thead>
+        <tr>
+            <td>時間</td>
+            <td>重量</td>
+            <td>重量單位</td>
+            <td>數量</td>
+            <td>數量單位</td>
+            <td>價值(千元)</td>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+<script>
+$.get($('#time-in-api').attr('href'), function(ret){
+    $('#time-in-table tbody').empty();
+    for (var i = 0; i < ret.data.length; i ++) {
+        var line = ret.data[i];
+        var tr_dom = $('<tr></tr>');
+        tr_dom.append($('<td></td>').append(
+            $('<a></a>').attr('href', '/index/goodid/' + ret.goodid + '/' + encodeURIComponent(line.Country) + '/' + ret.time).text(line.Country)
+        ));
+        tr_dom.append($('<td></td>').text(line.Weight));
+        tr_dom.append($('<td></td>').text(line.WeightUnit));
+        tr_dom.append($('<td></td>').text(line.Number));
+        tr_dom.append($('<td></td>').text(line.NumberUnit));
+        tr_dom.append($('<td></td>').text(line.Value));
+        $('#time-in-table tbody').append(tr_dom);
+    }
+}, 'json');
+$.get($('#time-out-api').attr('href'), function(ret){
+    $('#time-out-table tbody').empty();
+    for (var i = 0; i < ret.data.length; i ++) {
+        var line = ret.data[i];
+        var tr_dom = $('<tr></tr>');
+        tr_dom.append($('<td></td>').append(
+            $('<a></a>').attr('href', '/index/goodid/' + ret.goodid + '/' + encodeURIComponent(line.Country) + '/' + ret.time).text(line.Country)
+        ));
+        tr_dom.append($('<td></td>').text(line.Weight));
+        tr_dom.append($('<td></td>').text(line.WeightUnit));
+        tr_dom.append($('<td></td>').text(line.Number));
+        tr_dom.append($('<td></td>').text(line.NumberUnit));
+        tr_dom.append($('<td></td>').text(line.Value));
+        $('#time-out-table tbody').append(tr_dom);
+    }
+}, 'json');
+
+$.get($('#country-in-api').attr('href'), function(ret){
+    $('#country-in-table tbody').empty();
+    for (var i = 0; i < ret.data.length; i ++) {
+        var line = ret.data[i];
+        var tr_dom = $('<tr></tr>');
+        tr_dom.append($('<td></td>').text(line.Time));
+        tr_dom.append($('<td></td>').text(line.Weight));
+        tr_dom.append($('<td></td>').text(line.WeightUnit));
+        tr_dom.append($('<td></td>').text(line.Number));
+        tr_dom.append($('<td></td>').text(line.NumberUnit));
+        tr_dom.append($('<td></td>').text(line.Value));
+        $('#country-in-table tbody').append(tr_dom);
+    }
+}, 'json');
+
+$.get($('#country-out-api').attr('href'), function(ret){
+    $('#country-out-table tbody').empty();
+    for (var i = 0; i < ret.data.length; i ++) {
+        var line = ret.data[i];
+        var tr_dom = $('<tr></tr>');
+        tr_dom.append($('<td></td>').text(line.Time));
+        tr_dom.append($('<td></td>').text(line.Weight));
+        tr_dom.append($('<td></td>').text(line.WeightUnit));
+        tr_dom.append($('<td></td>').text(line.Number));
+        tr_dom.append($('<td></td>').text(line.NumberUnit));
+        tr_dom.append($('<td></td>').text(line.Value));
+        $('#country-out-table tbody').append(tr_dom);
+    }
+}, 'json');
+
+function pad(n, width, z) {
+    z = z || '0';
+    n = n + '';
+    return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+}
+
+$('.time-select').change(function(){
+        var url = '/index/goodid/<?= $this->goodid->id ?>/<?= urlencode($this->country) ?>/' + pad($('#select-year').val(), 3, '0') + pad($('#select-month').val(), 2, '0');
+        document.location = url;
+        console.log(url);
+});
+</script>

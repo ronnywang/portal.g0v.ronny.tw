@@ -60,7 +60,7 @@ class ApiController extends Pix_Controller
 
     public function searchgoodidcountryAction()
     {
-        list(,,,$goodid, $country) = explode('/', $this->getURI());
+        list(,,,$inout, $goodid, $country) = explode('/', $this->getURI());
 
         $code = strlen($goodid);
         if (!in_array($code, array(2,4,6,8,11))) {
@@ -73,7 +73,16 @@ class ApiController extends Pix_Controller
         if (!$country_id = CountryGroup::getCode($country, false)) {
             return $this->error("找不到 {$country} 這個國家");
         }
-        $table = Pix_Table::getTable('GoodIn' . $code . 'code');
+        $ret = new StdClass;
+        $ret->error = 0;
+        $ret->goodid = $goodid;
+        $ret->country = $country;
+
+        if ($inout == 'in') {
+            $table = Pix_Table::getTable('GoodIn' . $code . 'code');
+        } else {
+            $table = Pix_Table::getTable('GoodOut' . $code . 'code');
+        }
         $values = array();
         foreach ($table->search(array('country_id' => intval($country_id), 'good_id' => intval($goodid)))->order('time ASC') as $row) {
             $value = array();
@@ -89,13 +98,14 @@ class ApiController extends Pix_Controller
 
             $values[] = $value;
         }
+        $ret->data = $values;
 
-        return $this->jsonp($values, strval($_GET['callback']));
+        return $this->json($ret);
     }
 
     public function searchgoodidtimeAction()
     {
-        list(,,,$goodid, $time) = explode('/', $this->getURI());
+        list(,,,$inout, $goodid, $time) = explode('/', $this->getURI());
 
         $code = strlen($goodid);
         if (!in_array($code, array(2,4,6,8,11))) {
@@ -104,7 +114,17 @@ class ApiController extends Pix_Controller
         if (!$time) {
             return $this->error("本 API 格式為 /api/searchgoodidtime/{GoodId}/{YearMonth}");
         }
-        $table = Pix_Table::getTable('GoodIn' . $code . 'code');
+
+        $ret = new StdClass;
+        $ret->error = 0;
+        $ret->goodid = $goodid;
+        $ret->time = $time;
+
+        if ($inout == 'in') {
+            $table = Pix_Table::getTable('GoodIn' . $code . 'code');
+        } else {
+            $table = Pix_Table::getTable('GoodOut' . $code . 'code');
+        }
         $values = array();
         foreach ($table->search(array('good_id' => intval($goodid), 'time' => intval($time))) as $row) {
             $value = array();
@@ -121,6 +141,7 @@ class ApiController extends Pix_Controller
             $values[] = $value;
         }
 
-        return $this->jsonp($values);
+        $ret->data = $values;
+        return $this->json($ret);
     }
 }
