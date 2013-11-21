@@ -2,8 +2,21 @@
 
 class GoodIdRow extends Pix_Table_Row
 {
+    public function getParents()
+    {
+        $parents = array();
+        $parents[] = $this;
+        $p = $this;
+        while ($p->parent_id) {
+            $p = GoodId::find($p->parent_id);
+            $parents[] = $p;
+        }
+        return $parents;
+    }
+
     public function id()
     {
+        $id = $this->id;
         if ($id < 100) {
             return sprintf('%02d', $this->id);
         } elseif ($id < 10000) {
