@@ -46,4 +46,9 @@ class GoodId extends Pix_Table
 
         $this->addIndex('parent_id', array('parent_id'));
     }
+
+    public function getLatestTime()
+    {
+        return GoodIn11code::search(1)->max('id')->time;
+    }
 }
