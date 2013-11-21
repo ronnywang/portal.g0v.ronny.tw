@@ -136,7 +136,9 @@ $.get($('#country-in-api').attr('href'), function(ret){
     for (var i = 0; i < ret.data.length; i ++) {
         var line = ret.data[i];
         var tr_dom = $('<tr></tr>');
-        tr_dom.append($('<td></td>').text(line.Time));
+        tr_dom.append($('<td></td>').append(
+                $('<a></a>').attr('href', '/index/goodid/' + ret.goodid + '/<?= urlencode($this->country) ?>/' + encodeURIComponent(line.Time)).text(line.Time)
+        ));
         tr_dom.append($('<td></td>').text(line.Weight));
         tr_dom.append($('<td></td>').text(line.WeightUnit));
         tr_dom.append($('<td></td>').text(line.Number));
@@ -151,7 +153,9 @@ $.get($('#country-out-api').attr('href'), function(ret){
     for (var i = 0; i < ret.data.length; i ++) {
         var line = ret.data[i];
         var tr_dom = $('<tr></tr>');
-        tr_dom.append($('<td></td>').text(line.Time));
+        tr_dom.append($('<td></td>').append(
+                $('<a></a>').attr('href', '/index/goodid/' + ret.goodid + '/<?= urlencode($this->country) ?>/' + encodeURIComponent(line.Time)).text(line.Time)
+        ));
         tr_dom.append($('<td></td>').text(line.Weight));
         tr_dom.append($('<td></td>').text(line.WeightUnit));
         tr_dom.append($('<td></td>').text(line.Number));
