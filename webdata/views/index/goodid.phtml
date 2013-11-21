@@ -32,7 +32,7 @@ JSON: <?= $this->partial('/common/link.phtml', array('link' => 'api/goodid/' . $
 </select>年
 
 <h2><?= $this->time ?>進口資料</h2>
-JSON: <?= $this->partial('/common/link.phtml', array('id' => 'time-in-api', 'link' => 'api/searchgoodidtime/in/' . $this->goodid->id . '/' . $this->time)) ?><br>
+JSON: <?= $this->partial('/common/link.phtml', array('id' => 'time-in-api', 'link' => 'api/searchgoodidtime/in/' . $this->goodid->id() . '/' . $this->time)) ?><br>
 時間: 
 <table id="time-in-table" class="table">
     <thead>
@@ -49,7 +49,7 @@ JSON: <?= $this->partial('/common/link.phtml', array('id' => 'time-in-api', 'lin
     </tbody>
 </table>
 <h2><?= $this->time ?>出口資料</h2>
-JSON: <?= $this->partial('/common/link.phtml', array('id' => 'time-out-api', 'link' => 'api/searchgoodidtime/out/' . $this->goodid->id . '/' . $this->time)) ?><br>
+JSON: <?= $this->partial('/common/link.phtml', array('id' => 'time-out-api', 'link' => 'api/searchgoodidtime/out/' . $this->goodid->id() . '/' . $this->time)) ?><br>
 時間: 
 <table id="time-out-table" class="table">
     <thead>
@@ -67,7 +67,7 @@ JSON: <?= $this->partial('/common/link.phtml', array('id' => 'time-out-api', 'li
 </table>
 
 <h2><?= $this->escape($this->country) ?>進口資料</h2>
-JSON: <?= $this->partial('/common/link.phtml', array('id' => 'country-in-api', 'link' => 'api/searchgoodidcountry/in/' . $this->goodid->id . '/' . $this->country)) ?>
+JSON: <?= $this->partial('/common/link.phtml', array('id' => 'country-in-api', 'link' => 'api/searchgoodidcountry/in/' . $this->goodid->id() . '/' . $this->country)) ?>
 <table id="country-in-table" class="table">
     <thead>
         <tr>
@@ -84,7 +84,7 @@ JSON: <?= $this->partial('/common/link.phtml', array('id' => 'country-in-api', '
 </table>
 
 <h2><?= $this->escape($this->country) ?>出口資料</h2>
-JSON: <?= $this->partial('/common/link.phtml', array('id' => 'country-out-api', 'link' => 'api/searchgoodidcountry/out/' . $this->goodid->id . '/' . $this->country)) ?>
+JSON: <?= $this->partial('/common/link.phtml', array('id' => 'country-out-api', 'link' => 'api/searchgoodidcountry/out/' . $this->goodid->id() . '/' . $this->country)) ?>
 <table id="country-out-table" class="table">
     <thead>
         <tr>
@@ -175,7 +175,7 @@ function pad(n, width, z) {
 }
 
 $('.time-select').change(function(){
-        var url = '/index/goodid/<?= $this->goodid->id ?>/<?= urlencode($this->country) ?>/' + pad($('#select-year').val(), 3, '0') + pad($('#select-month').val(), 2, '0');
+        var url = '/index/goodid/<?= $this->goodid->id() ?>/<?= urlencode($this->country) ?>/' + pad($('#select-year').val(), 3, '0') + pad($('#select-month').val(), 2, '0');
         document.location = url;
         console.log(url);
 });
