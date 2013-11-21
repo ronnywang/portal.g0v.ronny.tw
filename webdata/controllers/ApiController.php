@@ -64,7 +64,7 @@ class ApiController extends Pix_Controller
 
         $code = strlen($goodid);
         if ($code == 10) {
-            $code == 11;
+            $code = 11;
         }
         if (!in_array($code, array(2,4,6,8,11))) {
             return $this->error("不正確的貨品代碼，貨品代碼必需要 2, 4, 6, 8, 11 位數的整數");
@@ -108,11 +108,11 @@ class ApiController extends Pix_Controller
 
     public function searchgoodidtimeAction()
     {
-        list(,,,$inout, $goodid, $time) = explode('/', $this->getURI());
+        list(,/*api*/,/*searchgoodidtime*/,$inout, $goodid, $time) = explode('/', $this->getURI());
 
         $code = strlen($goodid);
         if ($code == 10) {
-            $code == 11;
+            $code = 11;
         }
         if (!in_array($code, array(2,4,6,8,11))) {
             return $this->error("不正確的貨品代碼，貨品代碼必需要 2, 4, 6, 8, 11 位數的整數");
