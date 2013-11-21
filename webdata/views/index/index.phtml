@@ -1,7 +1,6 @@
 <?= $this->partial('/common/header.phtml', $this) ?>
 <h1>資料更新時間</h1>
-進口: <?= GoodIn11code::search(1)->max('id')->time ?><br>
-出口: <?= GoodOut11code::search(1)->max('id')->time ?><br>
+時間: <?= GoodId::getLatestTime() ?>
 <h1>分類</h1>
 JSON: <?= $this->partial('/common/link.phtml', array('link' => 'api/goodid/0')) ?>
 <ul>
