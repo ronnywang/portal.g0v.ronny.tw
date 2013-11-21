@@ -23,11 +23,39 @@ class ApiController extends Pix_Controller
             return $this->error("not number");
         }
 
-        return $this->json(array(
-            'erorr' => 0,
-            'good_id' => intval($goodid),
-            'data' => array_values(GoodId::search(array('parent_id' => intval($goodid)))->toArray(array('id', 'name', 'ename'))),
-        ));
+        $goodid_obj = GoodId::find(intval($goodid));
+
+        $ret = new StdClass;
+        $ret->error = 0;
+        if ($goodid_obj) {
+            $ret->good_id = $goodid_obj->id();
+            $parents = array();
+            foreach ($goodid_obj->getParents() as $parent_obj) {
+                $parent = new StdClass;
+                $parent->id = $parent_obj->id();
+                $parent->name = $parent_obj->name;
+                $parent->ename = $parent_obj->ename;
+                $parent->api_link = 'http://' . $_SERVER['HTTP_HOST'] . '/api/goodid/' . $parent_obj->id();
+                if ($parent->id == $goodid) {
+                    $ret->data = $parent;
+                } else {
+                    $parents[] = $parent;
+                }
+            }
+            $ret->parents = $parents;
+        }
+
+        $ret->children = array();
+        foreach (GoodId::search(array('parent_id' => intval($goodid))) as $child_obj) {
+            $d = new StdClass;
+            $d->id = $child_obj->id();
+            $d->name = $child_obj->name;
+            $d->ename = $child_obj->ename;
+            $d->api_link = 'http://' . $_SERVER['HTTP_HOST'] . '/api/goodid/' . $child_obj->id();
+            $ret->children[] = $d;
+        }
+
+        return $this->json($ret);
     }
 
     public function searchgoodidcountryAction()
