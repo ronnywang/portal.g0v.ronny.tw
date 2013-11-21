@@ -3,6 +3,7 @@
 進口: <?= GoodIn11code::search(1)->max('id')->time ?><br>
 出口: <?= GoodOut11code::search(1)->max('id')->time ?><br>
 <h1>分類</h1>
+JSON: <?= $this->partial('/common/link.phtml', array('link' => 'api/goodid/0')) ?>
 <ul>
     <?php foreach (GoodId::search(arraY('parent_id' => 0)) as $good_id) { ?>
     <li><a href="/index/goodid/<?= $good_id->id ?>"><?= $good_id->id() ?>. <?= $this->escape($good_id->name) ?></a>
