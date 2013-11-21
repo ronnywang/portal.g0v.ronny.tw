@@ -9,6 +9,7 @@ class IndexController extends Pix_Controller
     public function goodidAction()
     {
         list(, /*index*/, /*goodid*/, $goodid, $country, $time) = explode('/', $this->getURI());
+        $goodid = substr($goodid, 0, 10);
         if (!$goodid_obj = GoodId::find(intval($goodid))) {
             return $this->redirect('/');
         }
