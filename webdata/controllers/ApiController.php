@@ -10,6 +10,12 @@ class ApiController extends Pix_Controller
         ), strval($_GET['callback']));
     }
 
+    public function init()
+    {
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: GET');
+    }
+
     public function goodidAction()
     {
         list(,/*api*/,/*goodid*/, $goodid) = explode('/', $this->getURI());
