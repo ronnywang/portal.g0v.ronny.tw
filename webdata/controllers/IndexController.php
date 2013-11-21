@@ -13,6 +13,8 @@ class IndexController extends Pix_Controller
             return $this->redirect('/');
         }
 
+        $this->view->time = GoodId::getLatestTime();
+        $this->view->country = '合計';
         $this->view->goodid = $goodid_obj;
     }
 }
