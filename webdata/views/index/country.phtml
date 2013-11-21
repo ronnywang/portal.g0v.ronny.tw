@@ -1,0 +1,7 @@
+<?= $this->partial('/common/header.phtml', $this) ?>
+<h1>國家列表</h1>
+<ul>
+    <?php foreach (CountryGroup::search(1)->order('name')->toArray('name') as $country_name) { ?>
+    <li><?= $this->escape($country_name) ?></li>
+    <?php } ?>
+</ul>

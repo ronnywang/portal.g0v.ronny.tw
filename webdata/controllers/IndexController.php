@@ -6,6 +6,10 @@ class IndexController extends Pix_Controller
     {
     }
 
+    public function countryAction()
+    {
+    }
+
     public function goodidAction()
     {
         list(, /*index*/, /*goodid*/, $goodid, $country, $time) = explode('/', $this->getURI());
