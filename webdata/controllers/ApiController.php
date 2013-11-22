@@ -69,6 +69,9 @@ class ApiController extends Pix_Controller
         if (!in_array($code, array(2,4,6,8,11))) {
             return $this->error("不正確的貨品代碼，貨品代碼必需要 2, 4, 6, 8, 11 位數的整數");
         }
+        if (!$good_data = GoodId::find($code)) {
+            return $this->error("找不到這個商品代號");
+        }
         if (!$country) {
             return $this->error("本 API 格式為 /api/searchgoodidcountry/{GoodId}/{CountryName}");
         }
@@ -80,6 +83,14 @@ class ApiController extends Pix_Controller
         $ret->error = 0;
         $ret->goodid = $goodid;
         $ret->country = $country;
+
+        $data = new StdClass;
+        $data->id = $good_data->id();
+        $data->name = $good_data->name;
+        $data->ename = $good_data->ename;
+        $data->api_link = 'http://' . $_SERVER['HTTP_HOST'] . '/api/goodid/' . $good_data->id();
+
+        $ret->good_data = $data;
 
         if ($inout == 'in') {
             $table = Pix_Table::getTable('GoodIn' . $code . 'code');
@@ -120,11 +131,22 @@ class ApiController extends Pix_Controller
         if (!$time) {
             return $this->error("本 API 格式為 /api/searchgoodidtime/{GoodId}/{YearMonth}");
         }
+        if (!$good_data = GoodId::find($code)) {
+            return $this->error("找不到這個商品代號");
+        }
 
         $ret = new StdClass;
         $ret->error = 0;
         $ret->goodid = $goodid;
         $ret->time = $time;
+
+        $data = new StdClass;
+        $data->id = $good_data->id();
+        $data->name = $good_data->name;
+        $data->ename = $good_data->ename;
+        $data->api_link = 'http://' . $_SERVER['HTTP_HOST'] . '/api/goodid/' . $good_data->id();
+
+        $ret->good_data = $data;
 
         if ($inout == 'in') {
             $table = Pix_Table::getTable('GoodIn' . $code . 'code');
