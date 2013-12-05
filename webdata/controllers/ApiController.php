@@ -69,7 +69,7 @@ class ApiController extends Pix_Controller
         if (!in_array($code, array(2,4,6,8,11))) {
             return $this->error("不正確的貨品代碼，貨品代碼必需要 2, 4, 6, 8, 11 位數的整數");
         }
-        if (!$good_data = GoodId::find($code)) {
+        if (!$good_data = GoodId::find($goodid)) {
             return $this->error("找不到這個商品代號");
         }
         if (!$country) {
@@ -131,7 +131,7 @@ class ApiController extends Pix_Controller
         if (!$time) {
             return $this->error("本 API 格式為 /api/searchgoodidtime/{GoodId}/{YearMonth}");
         }
-        if (!$good_data = GoodId::find($code)) {
+        if (!$good_data = GoodId::find($goodid)) {
             return $this->error("找不到這個商品代號");
         }
 
