@@ -22,9 +22,9 @@ $columns_11 = array(
     'value',
 );
 
-foreach (array(2,4,6,8,11) as $code) {
     $insert_datas = array();
-    $files = glob($_SERVER['argv'][1] . '/*-' . $code . 'code.csv');
+    $files = $_SERVER['argv'];
+    array_shift($files);
     usort($files, function($a, $b){
         if (!preg_match('#/([0-9]*)-([0-9]*)-[0-9]*code.csv$#', $a, $a_matches)) {
             throw new Exception('檔名不對');
@@ -50,9 +50,10 @@ foreach (array(2,4,6,8,11) as $code) {
         return 0;
     });
     foreach ($files as $file) {
-        if (!preg_match('#/([0-9]*)-([0-9]*)-[0-9]*code.csv$#', $file, $matches)) {
+        if (!preg_match('#/([0-9]*)-([0-9]*)-([0-9]*)code.csv$#', $file, $matches)) {
             throw new Exception('檔名不對');
         }
+        $code = $matches[3];
         $fp = fopen($file, 'r');
         $rows = fgetcsv($fp);
 
@@ -86,4 +87,3 @@ foreach (array(2,4,6,8,11) as $code) {
         $table = Pix_Table::getTable('GoodIn' . $code . 'code');
         $table->bulkInsert($code == 11 ? $columns_11 : $columns, $insert_datas);
     }
-}
