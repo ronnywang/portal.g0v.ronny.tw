@@ -49,6 +49,6 @@ class GoodId extends Pix_Table
 
     public function getLatestTime()
     {
-        return GoodIn11code::search(1)->max('id')->time;
+        return GoodIn2Code::search(array('good_id' => 2))->max('time')->time;
     }
 }
