@@ -22,7 +22,6 @@ $columns_11 = array(
     'value',
 );
 
-    $insert_datas = array();
     $files = $_SERVER['argv'];
     array_shift($files);
     usort($files, function($a, $b){
@@ -49,18 +48,24 @@ $columns_11 = array(
         }
         return 0;
     });
+    $total = count($files);
+    $i = 0;
     foreach ($files as $file) {
-        if (!preg_match('#/([0-9]*)-([0-9]*)-([0-9]*)code.csv$#', $file, $matches)) {
+        $i ++;
+        if (!preg_match('#good_(.*)/([0-9]*)-([0-9]*)-([0-9]*)code.csv$#', $file, $matches)) {
             throw new Exception('檔名不對');
         }
-        $code = $matches[3];
+        $insert_datas = array();
+        $table_prefix = 'Good' . ucfirst($matches[1]);
+        $code = $matches[4];
+        error_log("{$i} / {$total}: {$file} => {$table_prefix}{$code}code");
         $fp = fopen($file, 'r');
         $rows = fgetcsv($fp);
 
         while ($rows = fgetcsv($fp)) {
             $insert_data = array();
             $insert_data[] = substr($rows[0], 0, 10); // 貨品代號, 最多取十碼
-            $insert_data[] = $matches[1] * 100 + $matches[2];
+            $insert_data[] = $matches[2] * 100 + $matches[3];
             $insert_data[] = CountryGroup::getCode($rows[1]); // 國家代號
             if ($code == 11) {
                 $insert_data[] = $rows[2]; // 數量
@@ -76,14 +81,14 @@ $columns_11 = array(
 
             $insert_datas[] = $insert_data;
 
-            if (count($insert_datas) > 50000) {
-                $table = Pix_Table::getTable('GoodIn' . $code . 'code');
+            if (count($insert_datas) > 10000) {
+                $table = Pix_Table::getTable($table_prefix . $code . 'code');
                 $table->bulkInsert($code == 11 ? $columns_11 : $columns, $insert_datas);
                 $insert_datas = array();
             }
         }
-    }
-    if (count($insert_datas)) {
-        $table = Pix_Table::getTable('GoodIn' . $code . 'code');
-        $table->bulkInsert($code == 11 ? $columns_11 : $columns, $insert_datas);
+        if (count($insert_datas)) {
+            $table = Pix_Table::getTable($table_prefix . $code . 'code');
+            $table->bulkInsert($code == 11 ? $columns_11 : $columns, $insert_datas);
+        }
     }
