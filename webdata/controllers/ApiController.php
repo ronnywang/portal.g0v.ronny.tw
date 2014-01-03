@@ -92,10 +92,10 @@ class ApiController extends Pix_Controller
 
         $ret->good_data = $data;
 
-        if ($inout == 'in') {
-            $table = Pix_Table::getTable('GoodIn' . $code . 'code');
+        if (in_array($inout, array('in', 'out', 'rein', 'reout'))) {
+            $table = Pix_Table::getTable('Good' . ucfirst($inout) . $code . 'code');
         } else {
-            $table = Pix_Table::getTable('GoodOut' . $code . 'code');
+            return $this->error("只能是 in, out, rein, reout");
         }
         $values = array();
         foreach ($table->search(array('country_id' => intval($country_id), 'good_id' => intval($goodid)))->order('time ASC') as $row) {
@@ -148,10 +148,10 @@ class ApiController extends Pix_Controller
 
         $ret->good_data = $data;
 
-        if ($inout == 'in') {
-            $table = Pix_Table::getTable('GoodIn' . $code . 'code');
+        if (in_array($inout, array('in', 'out', 'rein', 'reout'))) {
+            $table = Pix_Table::getTable('Good' . ucfirst($inout) . $code . 'code');
         } else {
-            $table = Pix_Table::getTable('GoodOut' . $code . 'code');
+            return $this->error("只能是 in, out, rein, reout");
         }
         $values = array();
         foreach ($table->search(array('good_id' => intval($goodid), 'time' => intval($time))) as $row) {

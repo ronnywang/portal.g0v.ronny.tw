@@ -66,6 +66,41 @@ JSON: <?= $this->partial('/common/link.phtml', array('id' => 'time-out-api', 'li
     </tbody>
 </table>
 
+<h2><?= $this->time ?>復進口資料</h2>
+JSON: <?= $this->partial('/common/link.phtml', array('id' => 'time-in-api', 'link' => 'api/searchgoodidtime/rein/' . $this->goodid->id() . '/' . $this->time)) ?><br>
+時間: 
+<table id="time-rein-table" class="table">
+    <thead>
+        <tr>
+            <td>國家</td>
+            <td>重量</td>
+            <td>重量單位</td>
+            <td>數量</td>
+            <td>數量單位</td>
+            <td>價值(千元)</td>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+<h2><?= $this->time ?>復出口資料</h2>
+JSON: <?= $this->partial('/common/link.phtml', array('id' => 'time-reout-api', 'link' => 'api/searchgoodidtime/reout/' . $this->goodid->id() . '/' . $this->time)) ?><br>
+時間: 
+<table id="time-reout-table" class="table">
+    <thead>
+        <tr>
+            <td>國家</td>
+            <td>重量</td>
+            <td>重量單位</td>
+            <td>數量</td>
+            <td>數量單位</td>
+            <td>價值(千元)</td>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
 <h2><?= $this->escape($this->country) ?>進口資料</h2>
 JSON: <?= $this->partial('/common/link.phtml', array('id' => 'country-in-api', 'link' => 'api/searchgoodidcountry/in/' . $this->goodid->id() . '/' . $this->country)) ?>
 <table id="country-in-table" class="table">
@@ -86,6 +121,40 @@ JSON: <?= $this->partial('/common/link.phtml', array('id' => 'country-in-api', '
 <h2><?= $this->escape($this->country) ?>出口資料</h2>
 JSON: <?= $this->partial('/common/link.phtml', array('id' => 'country-out-api', 'link' => 'api/searchgoodidcountry/out/' . $this->goodid->id() . '/' . $this->country)) ?>
 <table id="country-out-table" class="table">
+    <thead>
+        <tr>
+            <td>時間</td>
+            <td>重量</td>
+            <td>重量單位</td>
+            <td>數量</td>
+            <td>數量單位</td>
+            <td>價值(千元)</td>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+<h2><?= $this->escape($this->country) ?>復進口資料</h2>
+JSON: <?= $this->partial('/common/link.phtml', array('id' => 'country-rein-api', 'link' => 'api/searchgoodidcountry/rein/' . $this->goodid->id() . '/' . $this->country)) ?>
+<table id="country-rein-table" class="table">
+    <thead>
+        <tr>
+            <td>時間</td>
+            <td>重量</td>
+            <td>重量單位</td>
+            <td>數量</td>
+            <td>數量單位</td>
+            <td>價值(千元)</td>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>
+
+<h2><?= $this->escape($this->country) ?>復出口資料</h2>
+JSON: <?= $this->partial('/common/link.phtml', array('id' => 'country-reout-api', 'link' => 'api/searchgoodidcountry/reout/' . $this->goodid->id() . '/' . $this->country)) ?>
+<table id="country-reout-table" class="table">
     <thead>
         <tr>
             <td>時間</td>
@@ -165,6 +234,72 @@ $.get($('#country-out-api').attr('href'), function(ret){
         tr_dom.append($('<td></td>').text(line.NumberUnit));
         tr_dom.append($('<td></td>').text(line.Value));
         $('#country-out-table tbody').append(tr_dom);
+    }
+}, 'json');
+$.get($('#time-rein-api').attr('href'), function(ret){
+    $('#time-rein-table tbody').empty();
+    for (var i = 0; i < ret.data.length; i ++) {
+        var line = ret.data[i];
+        var tr_dom = $('<tr></tr>');
+        tr_dom.append($('<td></td>').append(
+            $('<a></a>').attr('href', '/index/goodid/' + ret.goodid + '/' + encodeURIComponent(line.Country) + '/' + ret.time).text(line.Country)
+        ));
+        tr_dom.append($('<td></td>').text(line.Weight));
+        tr_dom.append($('<td></td>').text(line.WeightUnit));
+        tr_dom.append($('<td></td>').text(line.Number));
+        tr_dom.append($('<td></td>').text(line.NumberUnit));
+        tr_dom.append($('<td></td>').text(line.Value));
+        $('#time-rein-table tbody').append(tr_dom);
+    }
+}, 'json');
+$.get($('#time-reout-api').attr('href'), function(ret){
+    $('#time-reout-table tbody').empty();
+    for (var i = 0; i < ret.data.length; i ++) {
+        var line = ret.data[i];
+        var tr_dom = $('<tr></tr>');
+        tr_dom.append($('<td></td>').append(
+            $('<a></a>').attr('href', '/index/goodid/' + ret.goodid + '/' + encodeURIComponent(line.Country) + '/' + ret.time).text(line.Country)
+        ));
+        tr_dom.append($('<td></td>').text(line.Weight));
+        tr_dom.append($('<td></td>').text(line.WeightUnit));
+        tr_dom.append($('<td></td>').text(line.Number));
+        tr_dom.append($('<td></td>').text(line.NumberUnit));
+        tr_dom.append($('<td></td>').text(line.Value));
+        $('#time-reout-table tbody').append(tr_dom);
+    }
+}, 'json');
+
+$.get($('#country-rein-api').attr('href'), function(ret){
+    $('#country-rein-table tbody').empty();
+    for (var i = 0; i < ret.data.length; i ++) {
+        var line = ret.data[i];
+        var tr_dom = $('<tr></tr>');
+        tr_dom.append($('<td></td>').append(
+                $('<a></a>').attr('href', '/index/goodid/' + ret.goodid + '/<?= urlencode($this->country) ?>/' + encodeURIComponent(line.Time)).text(line.Time)
+        ));
+        tr_dom.append($('<td></td>').text(line.Weight));
+        tr_dom.append($('<td></td>').text(line.WeightUnit));
+        tr_dom.append($('<td></td>').text(line.Number));
+        tr_dom.append($('<td></td>').text(line.NumberUnit));
+        tr_dom.append($('<td></td>').text(line.Value));
+        $('#country-rein-table tbody').append(tr_dom);
+    }
+}, 'json');
+
+$.get($('#country-reout-api').attr('href'), function(ret){
+    $('#country-reout-table tbody').empty();
+    for (var i = 0; i < ret.data.length; i ++) {
+        var line = ret.data[i];
+        var tr_dom = $('<tr></tr>');
+        tr_dom.append($('<td></td>').append(
+                $('<a></a>').attr('href', '/index/goodid/' + ret.goodid + '/<?= urlencode($this->country) ?>/' + encodeURIComponent(line.Time)).text(line.Time)
+        ));
+        tr_dom.append($('<td></td>').text(line.Weight));
+        tr_dom.append($('<td></td>').text(line.WeightUnit));
+        tr_dom.append($('<td></td>').text(line.Number));
+        tr_dom.append($('<td></td>').text(line.NumberUnit));
+        tr_dom.append($('<td></td>').text(line.Value));
+        $('#country-reout-table tbody').append(tr_dom);
     }
 }, 'json');
 
