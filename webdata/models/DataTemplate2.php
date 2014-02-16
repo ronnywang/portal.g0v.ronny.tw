@@ -4,9 +4,8 @@ class DataTemplate2 extends Pix_Table
 {
     public function init()
     {
-        $this->_primary = array('id');
+        $this->_primary = array('good_id', 'time', 'country_id', 'num_unit_id');
         
-        $this->_columns['id'] = array('type' => 'int', 'auto_increment' => true);
         $this->_columns['good_id'] = array('type' => 'int');
         $this->_columns['time'] = array('type' => 'int');
         $this->_columns['country_id'] = array('type' => 'int');
