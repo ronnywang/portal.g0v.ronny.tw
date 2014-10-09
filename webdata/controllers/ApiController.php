@@ -172,4 +172,62 @@ class ApiController extends Pix_Controller
         $ret->data = $values;
         return $this->json($ret);
     }
+
+    public function searchgoodidAction()
+    {
+        list(,/*api*/,/*searchgoodid*/,$inout, $goodid) = explode('/', $this->getURI());
+
+        $code = strlen($goodid);
+        if ($code == 10) {
+            $code = 11;
+        }
+        if (!in_array($code, array(2,4,6,8,11))) {
+            return $this->error("不正確的貨品代碼，貨品代碼必需要 2, 4, 6, 8, 11 位數的整數");
+        }
+        if (!$good_data = GoodId::find($goodid)) {
+            return $this->error("找不到這個商品代號");
+        }
+
+        $ret = new StdClass;
+        $ret->error = 0;
+        $ret->goodid = $goodid;
+
+        $data = new StdClass;
+        $data->id = $good_data->id();
+        $data->name = $good_data->name;
+        $data->ename = $good_data->ename;
+        $data->api_link = 'http://' . $_SERVER['HTTP_HOST'] . '/api/goodid/' . $good_data->id();
+
+        $ret->good_data = $data;
+
+        if (in_array($inout, array('in', 'out', 'rein', 'reout'))) {
+            $table = Pix_Table::getTable('Good' . ucfirst($inout) . $code . 'code');
+        } else {
+            return $this->error("只能是 in, out, rein, reout");
+        }
+        $time_values = array();
+        foreach ($table->search(array('good_id' => intval($goodid)))->order('time ASC') as $row) {
+            if (!array_key_exists($row->time, $time_values)) {
+                $time_values[$row->time] = new StdClass;
+                $time_values[$row->time]->time = intval($row->time);
+                $time_values[$row->time]->records = array();
+            }
+            $value = array();
+            $value['Country'] = CountryGroup::getName($row->country_id);
+            $value['Weight'] = intval($row->weight_value);
+            $value['WeightUnit'] = UnitGroup::getName($row->weight_unit_id);
+            $value['Value'] = intval($row->value);
+
+            if ($code == 11) {
+                $value['Number'] = intval($row->num_value);
+                $value['NumberUnit'] = UnitGroup::getName($row->num_unit_id);
+            }
+
+            $time_values[$row->time]->records[] = $value;
+        }
+
+        $ret->data = array_values($time_values);
+        return $this->json($ret);
+
+    }
 }
