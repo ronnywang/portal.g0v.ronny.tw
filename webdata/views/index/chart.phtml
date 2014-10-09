@@ -1,0 +1,185 @@
+<?php
+$types = array('in' => '進口', 'out' => '出口', 'rein' => '復進口', 'reout' => '復出口');
+?>
+<div class="btn-group">
+    <?php foreach ($types as $id => $name) { ?>
+    <button type="button" class="btn btn-default btn-chart" id="btn-chart-<?= $id ?>"><?= $this->escape($name) ?></button>
+    <?php } ?>
+</div>
+<div id="svg"></div>
+<style>
+
+body {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.bar {
+  fill: steelblue;
+}
+
+.x.axis path {
+  display: none;
+}
+
+</style>
+<script>
+
+var margin = {top: 20, right: 20, bottom: 30, left: 40},
+    width = 960 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+var x = d3.time.scale()
+    .rangeRound([0, width]);
+
+var y = d3.scale.linear()
+    .rangeRound([height, 0]);
+
+var color = d3.scale.category20();
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .tickFormat(d3.time.format("%Y-%m"))
+    .orient("bottom");
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    .tickFormat(d3.format(".2s"));
+
+var tip = d3.tip()
+  .attr('class', 'd3-tip')
+  .offset([-10, 0])
+  .html(function(d, q, index) {
+        var content = "<strong>" + data[index]["時間"] + "</strong><br>";
+        for (var i = 0; i < countries.length; i ++) {
+            if (data[index][countries[i]] > 0) {
+                content += countries[i] + ":" + data[index][countries[i]] + "<br>";
+            } 
+        }
+        return content;
+  })
+
+
+var get_time = function(d){
+    var year = Math.floor(d["時間"] / 100) + 1911;
+    var month = Math.floor(d["時間"] % 100);
+    return new Date(year + "/" + month + "/1");
+};
+
+var draw_data = function(error, data, label) {
+  color.domain(d3.keys(data[0]).filter(function(key) { return key !== "時間"; }));
+
+  data.forEach(function(d) {
+    var y0 = 0;
+    d.ages = color.domain().map(function(name) { return {name: name, y0: y0, y1: y0 += +d[name]}; });
+    d.total = d.ages[d.ages.length - 1].y1;
+  });
+
+  data.sort(function(a, b){ return a["時間"] < b["時間"] ? -1: 1; });
+
+  //x.domain(data.map(function(d) { return get_time(d); }));
+  x.domain([get_time(data[0]), d3.time.month.offset(get_time(data[data.length - 1]), 8)]);
+
+  y.domain([0, d3.max(data, function(d) { return d.total; })]);
+
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis)
+
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis);
+
+  svg.call(tip);
+
+  var yearmonth = svg.selectAll(".yearmonth")
+      .data(data)
+      .enter().append("g")
+      .attr("class", "g")
+      .attr("transform", function(d) { return "translate(" + x(get_time(d)) + ",0)"; });
+
+  yearmonth.selectAll("rect")
+      .data(function(d) { return d.ages; })
+    .enter().append("rect")
+      .attr("width", width / data.length - 1)
+      .attr("y", function(d) { return y(d.y1); })
+      .attr("height", function(d) { return y(d.y0) - y(d.y1); })
+      .style("fill", function(d) { return color(d.name); })
+      .on('mouseover', tip.show)
+      .on('mouseout', tip.hide)
+;
+
+  var legend = svg.selectAll(".legend")
+      .data(color.domain().slice().reverse())
+      .enter().append("g")
+      .attr("class", "legend")
+      .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+  legend.append("rect")
+      .attr("x", width - 18)
+      .attr("width", 18)
+      .attr("height", 18)
+      .style("fill", color);
+
+  legend.append("text")
+      .attr("x", width - 24)
+      .attr("y", 9)
+      .attr("dy", ".35em")
+      .style("text-anchor", "end")
+      .text(function(d) { return d; });
+
+};
+
+var data = [];
+var countries = [];
+
+$('.btn-chart').click(function(e){
+    e.preventDefault();
+
+    var id = $(this).attr('id').split('-')[2];
+    $('.svg').hide();
+    $('#svg-' + id).show();
+    $('.btn-chart').removeClass('btn-primary');
+    $('#btn-chart-' + id).addClass('btn-primary');
+    $.get('/api/searchgoodid/' + id + '/<?= $this->id ?>/', function(ret){
+        $('#svg').empty();
+        svg = d3.select("#svg").append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+   data = [];
+   countries = ret.countries;
+   for (var i = 0; i < ret.data.length; i ++) {
+     var time_records = ret.data[i];
+     values = {};
+     values["時間"] = time_records.time;
+     for (var j = 0; j < countries.length; j ++) {
+         values[countries[j]] = 0;
+     }
+     for (var j = 0; j < time_records.records.length; j ++) {
+         var record = time_records.records[j];
+         var indexOf = countries.indexOf(record.Country);
+         if (indexOf < 0) {
+             continue;
+         }
+         values[record.Country] = record.Weight;
+     }
+     data.push(values);
+   }
+   draw_data('', data, ret.good_data.name);
+}, 'json');
+});
+
+$('#btn-chart-in').click();
+
+</script>

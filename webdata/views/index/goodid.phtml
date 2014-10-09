@@ -11,7 +11,7 @@ $this->title = $this->goodid->name;
     </li>
 </ol>
 <h1><?= $this->escape($this->goodid->name) ?></h1>
-
+<?= $this->partial('/index/chart.phtml', array('id' => $this->goodid->id())) ?>
 <h2>子分類</h2>
 JSON: <?= $this->partial('/common/link.phtml', array('link' => 'api/goodid/' . $this->goodid->id())) ?>
 <ul>
