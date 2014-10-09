@@ -206,20 +206,34 @@ class ApiController extends Pix_Controller
             return $this->error("只能是 in, out, rein, reout");
         }
         $time_values = array();
+        $sum_values = array();
+        $countries = array();
+        $units = array();
         foreach ($table->search(array('good_id' => intval($goodid)))->order('time ASC') as $row) {
             if (!array_key_exists($row->time, $time_values)) {
                 $time_values[$row->time] = new StdClass;
                 $time_values[$row->time]->time = intval($row->time);
                 $time_values[$row->time]->records = array();
             }
+            $sum_key = $row->country_id . '-' . $row->weight_unit_id;
+            if (!array_key_exists($sum_key, $sum_values)) {
+                $sum_values[$sum_key] = new StdClass;
+                $sum_values[$sum_key]->Country = CountryGroup::getName($row->country_id);
+                $sum_values[$sum_key]->WeightUnit = UnitGroup::getName($row->weight_unit_id);
+            }
             $value = array();
             $value['Country'] = CountryGroup::getName($row->country_id);
             $value['Weight'] = intval($row->weight_value);
             $value['WeightUnit'] = UnitGroup::getName($row->weight_unit_id);
             $value['Value'] = intval($row->value);
+            $countries[$value['Country']] = true;
+            $units[$value['WeightUnit']] = true;
+            $sum_values[$sum_key]->Weight += $value['Weight'];
+            $sum_values[$sum_key]->Value += $value['Value'];
 
             if ($code == 11) {
                 $value['Number'] = intval($row->num_value);
+                $sum_values[$sum_key]->Number += $value['Number'];
                 $value['NumberUnit'] = UnitGroup::getName($row->num_unit_id);
             }
 
@@ -227,6 +241,9 @@ class ApiController extends Pix_Controller
         }
 
         $ret->data = array_values($time_values);
+        $ret->sum_values = array_values($sum_values);
+        $ret->countries = array_keys($countries);
+        $ret->units = array_keys($units);
         return $this->json($ret);
 
     }
