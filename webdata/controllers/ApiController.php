@@ -240,6 +240,7 @@ class ApiController extends Pix_Controller
             $time_values[$row->time]->records[] = $value;
         }
 
+        unset($countries['合計']);
         $ret->data = array_values($time_values);
         $ret->sum_values = array_values($sum_values);
         $ret->countries = array_keys($countries);
