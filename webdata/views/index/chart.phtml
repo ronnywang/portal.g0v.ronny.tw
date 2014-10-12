@@ -149,7 +149,7 @@ $('.btn-chart').click(function(e){
     $('#svg-' + id).show();
     $('.btn-chart').removeClass('btn-primary');
     $('#btn-chart-' + id).addClass('btn-primary');
-    $.get('/api/searchgoodid/' + id + '/<?= $this->id ?>/', function(ret){
+    $.get('<?= getenv('API_DOMAIN') ?>/api/searchgoodid/' + id + '/<?= $this->id ?>/', function(ret){
         $('#svg').empty();
         svg = d3.select("#svg").append("svg")
             .attr("width", width + margin.left + margin.right)
