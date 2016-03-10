@@ -75,11 +75,11 @@ var get_time = function(d){
     return new Date(year + "/" + month + "/1");
 };
 
-var draw_data = function(error, data, label) {
-  color.domain(d3.keys(data[0]).filter(function(key) { return key !== "時間"; }));
+var draw_data = function(error, data, label, country_total) {
+    color.domain(d3.keys(data[0]).filter(function(key) { return key !== "時間"; }).sort(function(a,b){ return country_total[a] - country_total[b]; }));
 
   data.forEach(function(d) {
-    var y0 = 0;
+      var y0 = 0;
     d.ages = color.domain().map(function(name) { return {name: name, y0: y0, y1: y0 += +d[name]}; });
     d.total = d.ages[d.ages.length - 1].y1;
   });
@@ -160,9 +160,10 @@ $('.btn-chart').click(function(e){
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
    data = [];
-   countries = ret.countries;
+        countries = ret.countries;
+        var country_total = {};
    for (var i = 0; i < ret.data.length; i ++) {
-     var time_records = ret.data[i];
+       var time_records = ret.data[i];
      values = {};
      values["時間"] = time_records.time;
      for (var j = 0; j < countries.length; j ++) {
@@ -175,10 +176,14 @@ $('.btn-chart').click(function(e){
              continue;
          }
          values[record.Country] = record.Weight;
+         if ('undefined' === typeof(country_total[record.Country])) {
+             country_total[record.Country] = 0;
+         }
+         country_total[record.Country] += record.Weight;
      }
      data.push(values);
    }
-   draw_data('', data, ret.good_data.name);
+   draw_data('', data, ret.good_data.name, country_total);
 }, 'json');
 });
 
