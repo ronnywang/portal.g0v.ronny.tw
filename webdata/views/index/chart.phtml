@@ -57,13 +57,15 @@ var tip = d3.tip()
   .attr('class', 'd3-tip')
   .offset([-10, 0])
   .html(function(d, q, index) {
-        var content = "<strong>" + data[index]["時間"] + "</strong><br>";
-        for (var i = 0; i < countries.length; i ++) {
-            if (data[index][countries[i]] > 0) {
-                content += countries[i] + ":" + data[index][countries[i]] + "<br>";
-            } 
-        }
-        return content;
+      var content = "<strong>" + data[index]["時間"] + "</strong><br>";
+      var records = countries.map(function(c) { return [c, data[index][c]]; });
+      records.sort(function(a, b) { return b[1] - a[1]; });
+      records.map(function(record) {
+          if (record[1]) {
+              content += record[0] + ':' + record[1] + '<br>';
+          }
+      });
+      return content;
   })
 
 
