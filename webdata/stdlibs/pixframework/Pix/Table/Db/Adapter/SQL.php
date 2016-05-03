@@ -231,7 +231,14 @@ class Pix_Table_Db_Adapter_SQL extends Pix_Table_Db_Adapter_Abstract
      */
     public function bulkInsert($table, $keys, $values_list, $options = array())
     {
-        $sql = 'INSERT IGNORE INTO ' . $this->column_quote($table->getTableName());
+        if (array_key_exists('replace', $options) and $options['replace']) {
+            $sql = 'REPLACE INTO ';
+        } else if (array_key_exists('ignore', $options) and $options['ignore']) {
+            $sql = 'INSERT IGNORE INTO ';
+        } else {
+            $sql = 'INSERT INTO ';
+        }
+        $sql .= $this->column_quote($table->getTableName());
         $sql .= ' (' . implode(',', array_map(array($this, 'column_quote'), $keys)) . ')';
         $sql .= ' VALUES ';
         $sql .= implode(',', array_map(function($values) use ($table, $keys){
