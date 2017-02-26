@@ -58,7 +58,10 @@ $columns_11 = array(
         $insert_datas = array();
         $table_prefix = 'Good' . ucfirst($matches[1]);
         $code = $matches[4];
+        $table = Pix_Table::getTable($table_prefix . $code . 'code');
+        $year_month  = intval($matches[2]) * 100 + $matches[3];
         error_log("{$i} / {$total}: {$file} => {$table_prefix}{$code}code");
+        $table->getDb()->query("DELETE FROM {$table->_name} WHERE time = {$year_month}");
         $fp = fopen($file, 'r');
         $rows = fgetcsv($fp);
 
@@ -82,13 +85,11 @@ $columns_11 = array(
             $insert_datas[] = $insert_data;
 
             if (count($insert_datas) > 10000) {
-                $table = Pix_Table::getTable($table_prefix . $code . 'code');
                 $table->bulkInsert($code == 11 ? $columns_11 : $columns, $insert_datas);
                 $insert_datas = array();
             }
         }
         if (count($insert_datas)) {
-            $table = Pix_Table::getTable($table_prefix . $code . 'code');
             $table->bulkInsert($code == 11 ? $columns_11 : $columns, $insert_datas);
         }
     }
