@@ -108,10 +108,14 @@ var draw_data = function(error, data, label, country_total) {
       .attr("class", "g")
       .attr("transform", function(d) { return "translate(" + x(get_time(d)) + ",0)"; });
 
+  var x_start = get_time(data[0]);
+  var x_end = get_time(data[data.length - 1]);
+  var month_length = 12 * (x_end.getYear() - x_start.getYear()) + (x_end.getMonth() - x_start.getMonth()) + 8;
+
   yearmonth.selectAll("rect")
       .data(function(d) { return d.ages; })
     .enter().append("rect")
-      .attr("width", width / data.length - 1)
+      .attr("width", width / month_length + 1 - 1)
       .attr("y", function(d) { return y(d.y1); })
       .attr("height", function(d) { return y(d.y0) - y(d.y1); })
       .style("fill", function(d) { return color(d.name); })
