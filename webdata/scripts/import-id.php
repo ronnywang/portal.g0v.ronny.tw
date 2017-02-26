@@ -10,6 +10,9 @@ $columns = array(
     'ename',
 );
 
+GoodId::getDb()->query("BEGIN");
+GoodId::getDb()->query("DELETE FROM good_id");
+
 $values = array();
 while ($row = fgetcsv($fp)) {
     $value = array(
@@ -28,3 +31,5 @@ if (count($values)) {
     GoodId::bulkInsert($columns, $values);
     $values = array();
 }
+
+GoodId::getDb()->query("COMMIT");
