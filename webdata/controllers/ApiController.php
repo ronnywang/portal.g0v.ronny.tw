@@ -76,7 +76,7 @@ class ApiController extends Pix_Controller
             return $this->error("本 API 格式為 /api/searchgoodidcountry/{GoodId}/{CountryName}");
         }
         $country = urldecode($country);
-        if (!$country_id = CountryGroup::getCode($country, false)) {
+        if (!$country_id = CountryGroup::find_by_name($country)->id) {
             return $this->error("找不到 {$country} 這個國家");
         }
         $ret = new StdClass;
@@ -97,17 +97,24 @@ class ApiController extends Pix_Controller
         } else {
             return $this->error("只能是 in, out, rein, reout");
         }
+
+        $records = $table->search(array('country_id' => intval($country_id), 'good_id' => intval($goodid)))->order('time ASC')->toArray();
+        if ($records) {
+            $weight_unit_map = UnitGroup::search(1)->searchIn('id', array_unique(array_map(function($a){ return $a['weight_unit_id']; }, $records)))->toArray('name');
+            $num_unit_map = UnitGroup::search(1)->searchIn('id', array_unique(array_map(function($a){ return $a['num_unit_id']; }, $records)))->toArray('name');
+        }
+
         $values = array();
-        foreach ($table->search(array('country_id' => intval($country_id), 'good_id' => intval($goodid)))->order('time ASC') as $row) {
+        foreach ($records as $record) {
             $value = array();
-            $value['Time'] = intval($row->time);
-            $value['Weight'] = intval($row->weight_value);
-            $value['WeightUnit'] = UnitGroup::getName($row->weight_unit_id);
-            $value['Value'] = intval($row->value);
+            $value['Time'] = intval($record['time']);
+            $value['Weight'] = intval($record['weight_value']);
+            $value['WeightUnit'] = $weight_unit_map[$record['weight_unit_id']];
+            $value['Value'] = intval($record['value']);
 
             if ($code == 11) {
-                $value['Number'] = intval($row->num_value);
-                $value['NumberUnit'] = UnitGroup::getName($row->num_unit_id);
+                $value['Number'] = intval($record['num_value']);
+                $value['NumberUnit'] = $num_unit_map[$record['num_unit_id']];
             }
 
             $values[] = $value;
@@ -216,35 +223,43 @@ class ApiController extends Pix_Controller
         $sum_values = array();
         $countries = array();
         $units = array();
-        foreach ($table->search(array('good_id' => intval($goodid)))->order('time ASC') as $row) {
-            if (!array_key_exists($row->time, $time_values)) {
-                $time_values[$row->time] = new StdClass;
-                $time_values[$row->time]->time = intval($row->time);
-                $time_values[$row->time]->records = array();
+
+        $records = $table->search(array('good_id' => intval($goodid)))->order('time ASC')->toArray();
+        if ($records) {
+            $country_map = CountryGroup::search(1)->searchIn('id', array_unique(array_map(function($a){ return $a['country_id']; }, $records)))->toArray('name');
+            $weight_unit_map = UnitGroup::search(1)->searchIn('id', array_unique(array_map(function($a){ return $a['weight_unit_id']; }, $records)))->toArray('name');
+            $num_unit_map = UnitGroup::search(1)->searchIn('id', array_unique(array_map(function($a){ return $a['num_unit_id']; }, $records)))->toArray('name');
+        }
+
+        foreach ($records as $record) {
+            if (!array_key_exists($record['time'], $time_values)) {
+                $time_values[$record['time']] = new StdClass;
+                $time_values[$record['time']]->time = intval($record['time']);
+                $time_values[$record['time']]->records = array();
             }
-            $sum_key = $row->country_id . '-' . $row->weight_unit_id;
+            $sum_key = $record['country_id'] . '-' . $record['weight_unit_id'];
             if (!array_key_exists($sum_key, $sum_values)) {
                 $sum_values[$sum_key] = new StdClass;
-                $sum_values[$sum_key]->Country = CountryGroup::getName($row->country_id);
-                $sum_values[$sum_key]->WeightUnit = UnitGroup::getName($row->weight_unit_id);
+                $sum_values[$sum_key]->Country = $country_map[$record['country_id']];
+                $sum_values[$sum_key]->WeightUnit = $weight_unit_map[$record['weight_unit_id']];
             }
             $value = array();
-            $value['Country'] = CountryGroup::getName($row->country_id);
-            $value['Weight'] = intval($row->weight_value);
-            $value['WeightUnit'] = UnitGroup::getName($row->weight_unit_id);
-            $value['Value'] = intval($row->value);
+            $value['Country'] = $country_map[$record['country_id']];
+            $value['Weight'] = intval($record['weight_value']);
+            $value['WeightUnit'] = $weight_unit_map[$record['weight_unit_id']];
+            $value['Value'] = intval($record['value']);
             $countries[$value['Country']] = true;
             $units[$value['WeightUnit']] = true;
             $sum_values[$sum_key]->Weight += $value['Weight'];
             $sum_values[$sum_key]->Value += $value['Value'];
 
             if ($code == 11) {
-                $value['Number'] = intval($row->num_value);
+                $value['Number'] = intval($record['num_value']);
                 $sum_values[$sum_key]->Number += $value['Number'];
-                $value['NumberUnit'] = UnitGroup::getName($row->num_unit_id);
+                $value['NumberUnit'] = $num_unit_map[$record['num_unit_id']];
             }
 
-            $time_values[$row->time]->records[] = $value;
+            $time_values[$record['time']]->records[] = $value;
         }
 
         unset($countries['合計']);
